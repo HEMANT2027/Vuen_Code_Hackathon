@@ -3,7 +3,6 @@
 An intelligent, multi-modal chatbot that can analyze video content, answer your questions, and remember past interactions using a sophisticated Retrieval-Augmented Generation (RAG) system.
 
 ![Demo Video](https://place-hold.it/800x450/667eea/ffffff?text=App+Screenshot+Here&fontsize=40)
-*(Replace the placeholder with a GIF or screenshot of your application)*
 
 ---
 
