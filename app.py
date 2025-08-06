@@ -351,11 +351,11 @@ def launch_gradio_ui():
                     with open(video_path, "rb") as f:
                         files = {'video_file': (os.path.basename(video_path), f, 'video/mp4')}
                         data = {'prompt': user_input, 'session_id': session_id}
-                        response = client.post("http://127.0.0.1:8000/chat/video", files=files, data=data)
+                        response = client.post("https://vuen-code-hackathon.onrender.com/chat/video", files=files, data=data)
                 else:
                     # User submitted a text-only follow-up
                     data = {'prompt': user_input, 'session_id': session_id}
-                    response = client.post("http://127.0.0.1:8000/chat/text", data=data)
+                    response = client.post("https://vuen-code-hackathon.onrender.com/chat/text", data=data)
 
                 response.raise_for_status()
                 chat_response = response.json()
@@ -412,7 +412,7 @@ def launch_gradio_ui():
         try:
             with httpx.Client(timeout=30.0) as client:
                 data = {'query': query, 'session_id': session_id, 'k': 5}
-                response = client.post("http://127.0.0.1:8000/rag/query", data=data)
+                response = client.post("https://vuen-code-hackathon.onrender.com/rag/query", data=data)
                 response.raise_for_status()
                 results = response.json()
                 
@@ -446,7 +446,7 @@ def launch_gradio_ui():
         
         try:
             with httpx.Client(timeout=30.0) as client:
-                response = client.post("http://127.0.0.1:8000/rag/debug")
+                response = client.post("https://vuen-code-hackathon.onrender.com/rag/debug")
                 response.raise_for_status()
                 result = response.json()
                 
@@ -462,7 +462,7 @@ def launch_gradio_ui():
         """Get RAG system statistics."""
         try:
             with httpx.Client(timeout=30.0) as client:
-                response = client.get("http://127.0.0.1:8000/rag/stats")
+                response = client.get("https://vuen-code-hackathon.onrender.com/rag/stats")
                 response.raise_for_status()
                 stats = response.json()
                 
@@ -612,7 +612,8 @@ def launch_gradio_ui():
             server_name="127.0.0.1", 
             server_port=7860,
             show_error=True,
-            inbrowser=True
+            inbrowser=True,
+            share=True
         )
 
 # --- 4. Main Execution Block ---
@@ -627,7 +628,7 @@ if __name__ == "__main__":
     rag_status_msg = "with RAG Integration" if RAG_AVAILABLE else "(RAG Unavailable - Install: pip install langchain-community sentence-transformers faiss-cpu)"
     
     print("🚀 Starting AI Video Chat Assistant...")
-    print(f"📊 FastAPI Backend: http://127.0.0.1:8000")
+    print(f"📊 FastAPI Backend: https://vuen-code-hackathon.onrender.com")
     print(f"🎨 Gradio Frontend: http://127.0.0.1:7860")
     print(f"🧠 RAG System: {rag_status_msg}")
     print("=" * 70)
