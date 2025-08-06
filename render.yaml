@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: vuen-hackathon-api
+    env: python
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port 10000
+    plan: free
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false

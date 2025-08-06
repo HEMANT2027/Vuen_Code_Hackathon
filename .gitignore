@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Python Egg
+*.egg-info/
+*.egg
+
+# Gradio cache
+gradio_cached_examples/
+gradio_cache/
+
+# Pytest / test cache
+.pytest_cache/
+
+# Local config
+*.local
+*.log
+
+
+# Runtime folders
+chroma_db/
+temp_videos/
+
+
+# ChromaDB and other temp DBs
+*.sqlite
+chroma/
+chroma.db
+
