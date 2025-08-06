@@ -11,17 +11,17 @@ import pickle
 from datetime import datetime
 import json
 
-# Set up logging
+# Set up logging to track info, warnings, and errors
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration
+# Define paths for vectorstore data, metadata, and debug info
 RAG_FAISS_PATH = os.path.join(os.getcwd(), "rag_data")
 RAG_METADATA_PATH = os.path.join(RAG_FAISS_PATH, "metadata.pkl")
 RAG_DEBUG_PATH = os.path.join(RAG_FAISS_PATH, "debug_info.json")
-os.makedirs(RAG_FAISS_PATH, exist_ok=True)
+os.makedirs(RAG_FAISS_PATH, exist_ok=True)  # Ensure directory exists
 
-# Initialize text splitter for large documents
+# Text splitter configuration: splits large documents into smaller chunks with overlap for context
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=200,
@@ -29,14 +29,17 @@ text_splitter = RecursiveCharacterTextSplitter(
     separators=["\n\n", "\n", " ", ""]
 )
 
-# Initialize embeddings
+# Globals for embedding model, vectorstore, metadata, and debug info
 embedding = None
 vectorstore = None
 metadata_store = {}
 debug_info = {"initialization_attempts": 0, "last_error": None, "documents_added": 0}
 
 def initialize_embeddings():
-    """Initialize HuggingFace embeddings with error handling."""
+    """
+    Initialize HuggingFace embeddings with error handling.
+    Uses MiniLM model optimized for CPU.
+    """
     global embedding
     
     try:
@@ -52,16 +55,21 @@ def initialize_embeddings():
         return False
 
 def initialize_vectorstore():
-    """Initialize the FAISS vectorstore and metadata store with debugging."""
+    """
+    Load existing FAISS vectorstore and metadata if available,
+    otherwise create a new vectorstore.
+    Includes debug info updates.
+    """
     global vectorstore, metadata_store, debug_info
     
     debug_info["initialization_attempts"] += 1
     
+    # Initialize embeddings first
     if not initialize_embeddings():
         return False
     
     try:
-        # Load metadata store first
+        # Load metadata store if file exists, else start fresh
         if os.path.exists(RAG_METADATA_PATH):
             with open(RAG_METADATA_PATH, 'rb') as f:
                 metadata_store = pickle.load(f)
@@ -70,12 +78,13 @@ def initialize_vectorstore():
             metadata_store = {}
             logger.info("New metadata store created")
         
-        # Check if vectorstore files exist
+        # Check if FAISS index files exist
         faiss_index_path = os.path.join(RAG_FAISS_PATH, "index.faiss")
         faiss_pkl_path = os.path.join(RAG_FAISS_PATH, "index.pkl")
         
         if os.path.exists(faiss_index_path) and os.path.exists(faiss_pkl_path):
             try:
+                # Load vectorstore with current embeddings
                 vectorstore = FAISS.load_local(
                     RAG_FAISS_PATH, 
                     embeddings=embedding, 
@@ -83,18 +92,20 @@ def initialize_vectorstore():
                 )
                 logger.info(f"Existing FAISS vectorstore loaded with {vectorstore.index.ntotal} vectors")
                 
-                # Add some sample data if vectorstore is empty
-                if vectorstore.index.ntotal <= 1:  # Only has dummy document
+                # If vectorstore has minimal data, add sample entries
+                if vectorstore.index.ntotal <= 1:  # Only dummy documents present
                     add_sample_data()
                 
             except Exception as load_error:
                 logger.warning(f"Could not load existing vectorstore: {load_error}")
+                # If loading fails, create fresh vectorstore
                 vectorstore = create_new_vectorstore()
         else:
+            # If no vectorstore files, create new
             logger.info("No existing vectorstore found, creating new one")
             vectorstore = create_new_vectorstore()
         
-        # Save debug info
+        # Update and save debug info after initialization
         debug_info["vectorstore_documents"] = vectorstore.index.ntotal if vectorstore else 0
         debug_info["last_initialization"] = datetime.now().isoformat()
         debug_info["last_error"] = None
@@ -110,11 +121,14 @@ def initialize_vectorstore():
         return False
 
 def create_new_vectorstore():
-    """Create a new FAISS vectorstore with sample data."""
+    """
+    Create a new FAISS vectorstore with initial sample documents
+    to bootstrap the system.
+    """
     global vectorstore
     
     try:
-        # Create sample documents for initialization
+        # Sample system documents to seed the vectorstore
         sample_docs = [
             Document(
                 page_content="This is the RAG knowledge system for AI Video Chat Assistant.",
@@ -126,10 +140,11 @@ def create_new_vectorstore():
             )
         ]
         
+        # Create FAISS vectorstore from documents using embeddings
         vectorstore = FAISS.from_documents(sample_docs, embedding)
         logger.info(f"New FAISS vectorstore created with {len(sample_docs)} sample documents")
         
-        # Save immediately
+        # Save vectorstore to disk immediately
         save_vectorstore()
         
         return vectorstore
@@ -139,7 +154,10 @@ def create_new_vectorstore():
         raise e
 
 def add_sample_data():
-    """Add sample data to help with testing."""
+    """
+    Add predefined sample entries to the vectorstore
+    to assist with testing and initial queries.
+    """
     sample_entries = [
         {
             "text": "Video analysis example: A user uploaded a video showing a cat playing with a toy mouse. The video had good lighting and clear audio.",
@@ -158,6 +176,7 @@ def add_sample_data():
         }
     ]
     
+    # Add each sample entry to vectorstore with appropriate metadata
     for entry in sample_entries:
         add_to_rag_vectorstore(
             text=entry["text"],
@@ -169,7 +188,10 @@ def add_sample_data():
     logger.info(f"Added {len(sample_entries)} sample entries to vectorstore")
 
 def save_vectorstore():
-    """Save the vectorstore and metadata to disk."""
+    """
+    Save the current vectorstore and metadata store to disk,
+    updating debug info accordingly.
+    """
     try:
         if vectorstore is not None:
             vectorstore.save_local(RAG_FAISS_PATH)
@@ -190,7 +212,10 @@ def save_vectorstore():
         return False
 
 def save_debug_info():
-    """Save debug information."""
+    """
+    Save the current debug information to a JSON file
+    for monitoring and troubleshooting.
+    """
     try:
         with open(RAG_DEBUG_PATH, 'w') as f:
             json.dump(debug_info, f, indent=2)
@@ -204,7 +229,10 @@ def add_to_rag_vectorstore(
     source: str = "chat",
     chunk_text: bool = True
 ) -> bool:
-    """Add text to the RAG vectorstore with enhanced metadata and debugging."""
+    """
+    Add a text document (optionally chunked) to the RAG vectorstore.
+    Enrich metadata with session, content type, source, and timestamp.
+    """
     global debug_info
     
     if vectorstore is None:
@@ -217,7 +245,7 @@ def add_to_rag_vectorstore(
         return False
     
     try:
-        # Prepare metadata
+        # Prepare metadata for the document(s)
         metadata = {
             "session_id": session_id or "global",
             "content_type": content_type,
@@ -226,7 +254,7 @@ def add_to_rag_vectorstore(
             "char_count": len(text)
         }
         
-        # Split text into chunks if needed
+        # If text is long and chunking enabled, split it into smaller chunks
         if chunk_text and len(text) > 500:
             chunks = text_splitter.split_text(text)
             documents = []
@@ -238,10 +266,10 @@ def add_to_rag_vectorstore(
         else:
             documents = [Document(page_content=text, metadata=metadata)]
         
-        # Add to vectorstore
+        # Add documents to the FAISS vectorstore
         vectorstore.add_documents(documents)
         
-        # Update metadata store
+        # Track metadata for added documents
         doc_id = f"{session_id}_{datetime.now().timestamp()}"
         metadata_store[doc_id] = {
             "metadata": metadata,
@@ -249,12 +277,12 @@ def add_to_rag_vectorstore(
             "text_preview": text[:100] + "..." if len(text) > 100 else text
         }
         
-        # Update debug info
+        # Update debug statistics
         debug_info["documents_added"] += len(documents)
         debug_info["total_documents"] = vectorstore.index.ntotal
         debug_info["last_add_operation"] = datetime.now().isoformat()
         
-        # Save to disk
+        # Persist changes to disk
         save_vectorstore()
         
         logger.info(f"Successfully added {len(documents)} document(s) to RAG vectorstore")
@@ -274,7 +302,10 @@ def query_rag_vectorstore(
     content_type_filter: Optional[str] = None,
     similarity_threshold: float = 0.0
 ) -> List[Document]:
-    """Query the RAG vectorstore with enhanced filtering and debugging."""
+    """
+    Query the vectorstore to retrieve documents similar to the query.
+    Supports filtering by session_id, content type, and similarity threshold.
+    """
     global debug_info
     
     if vectorstore is None:
@@ -289,7 +320,7 @@ def query_rag_vectorstore(
     try:
         logger.info(f"Querying vectorstore with query: '{query[:50]}...' (total docs: {vectorstore.index.ntotal})")
         
-        # First try a simple similarity search without filters
+        # Retrieve a larger initial set of results to apply filters
         all_results = vectorstore.similarity_search_with_score(query, k=k*2)
         
         if not all_results:
@@ -299,20 +330,20 @@ def query_rag_vectorstore(
         
         logger.info(f"Found {len(all_results)} initial results")
         
-        # Apply filters manually since FAISS filtering can be unreliable
+        # Filter results based on session, content type, and score threshold
         filtered_results = []
         for doc, score in all_results:
             doc_metadata = doc.metadata
             
-            # Apply session filter
+            # Skip if session ID does not match (when specified)
             if session_id and doc_metadata.get("session_id") != session_id:
                 continue
             
-            # Apply content type filter
+            # Skip if content type filter is applied and doesn't match
             if content_type_filter and doc_metadata.get("content_type") != content_type_filter:
                 continue
             
-            # Apply similarity threshold
+            # Skip if similarity score is below threshold
             if score < similarity_threshold:
                 continue
             
@@ -320,6 +351,7 @@ def query_rag_vectorstore(
             if len(filtered_results) >= k:
                 break
         
+        # Update debug info about this query
         debug_info["last_query"] = query[:100]
         debug_info["last_query_results"] = len(filtered_results)
         debug_info["last_query_time"] = datetime.now().isoformat()
@@ -336,7 +368,10 @@ def query_rag_vectorstore(
         return []
 
 def get_vectorstore_stats() -> Dict:
-    """Get comprehensive statistics about the vectorstore."""
+    """
+    Get statistics and breakdowns of the current vectorstore,
+    including document counts and debug info.
+    """
     try:
         stats = {
             "status": "operational" if vectorstore is not None else "failed",
@@ -346,7 +381,7 @@ def get_vectorstore_stats() -> Dict:
         }
         
         if metadata_store:
-            # Count by session and content type
+            # Summarize counts by session and content type
             session_counts = {}
             content_type_counts = {}
             
@@ -364,6 +399,7 @@ def get_vectorstore_stats() -> Dict:
                 "content_type_breakdown": content_type_counts,
             })
         
+        # Add file existence checks and model info
         stats.update({
             "vectorstore_path": RAG_FAISS_PATH,
             "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
@@ -380,7 +416,9 @@ def get_vectorstore_stats() -> Dict:
         return {"error": str(e), "debug_info": debug_info.copy()}
 
 def debug_add_test_data():
-    """Add test data for debugging purposes."""
+    """
+    Add multiple test entries into vectorstore for debugging purposes.
+    """
     test_entries = [
         "Test entry 1: This is a sample video analysis about a cooking tutorial.",
         "Test entry 2: User asked about ingredients in the recipe video.",
@@ -403,21 +441,24 @@ def debug_add_test_data():
     return success_count
 
 def force_reinitialize():
-    """Force reinitialize the vectorstore (useful for debugging)."""
+    """
+    Force complete reinitialization of vectorstore and metadata.
+    Useful when debugging or recovering from errors.
+    """
     global vectorstore, metadata_store, debug_info
     
     logger.info("Force reinitializing RAG system...")
     
-    # Clear current state
+    # Reset global state
     vectorstore = None
     metadata_store = {}
     debug_info["force_reinit_count"] = debug_info.get("force_reinit_count", 0) + 1
     
-    # Reinitialize
+    # Attempt reinitialization
     success = initialize_vectorstore()
     
     if success:
-        # Add test data
+        # Add test data on successful reinit
         debug_add_test_data()
         logger.info("Force reinitialization completed successfully")
     else:
@@ -425,7 +466,7 @@ def force_reinitialize():
     
     return success
 
-# Initialize vectorstore on module import
+# Initialize vectorstore on module load
 logger.info("Initializing RAG integration module...")
 initialize_success = initialize_vectorstore()
 
@@ -438,9 +479,12 @@ if initialize_success:
 else:
     logger.error("RAG integration module failed to load properly. Some features may not work.")
 
-# Convenience functions remain the same...
+# Convenience wrapper functions
+
 def add_video_analysis(video_filename: str, analysis: str, session_id: str) -> bool:
-    """Convenience function to add video analysis to RAG."""
+    """
+    Helper to add video analysis text to the vectorstore with appropriate metadata.
+    """
     content = f"Video Analysis for '{video_filename}': {analysis}"
     return add_to_rag_vectorstore(
         text=content,
@@ -450,11 +494,14 @@ def add_video_analysis(video_filename: str, analysis: str, session_id: str) -> b
     )
 
 def get_context_for_query(query: str, session_id: str) -> str:
-    """Get formatted context for a query."""
+    """
+    Retrieve and format relevant context documents for a query,
+    combining session-specific and global knowledge.
+    """
     try:
-        # Get session-specific context
+        # Retrieve up to 3 session-specific documents
         session_docs = query_rag_vectorstore(query, session_id, k=3)
-        # Get global context  
+        # Retrieve up to 2 global context documents
         global_docs = query_rag_vectorstore(query, None, k=2)
         
         context_parts = []
