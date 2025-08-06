@@ -2,7 +2,7 @@
 
 An intelligent, multi-modal chatbot that can analyze video content, answer your questions, and remember past interactions using a sophisticated Retrieval-Augmented Generation (RAG) system.
 
-![Demo Video](https://place-hold.it/800x450/667eea/ffffff?text=App+Screenshot+Here&fontsize=40)
+![Demo Video]([https://place-hold.it/800x450/667eea/ffffff?text=App+Screenshot+Here&fontsize=40](https://github.com/Pratap-2/Vuen_Code_Hackathon/blob/8573ee2624b582b3b5cb1da34b96997621462864/Screen%20Recording%202025-08-06%20114600%20(1).mp4))
 
 ---
 
