@@ -1,3 +1,40 @@
+# 🎥 AI Video Chat Assistant with RAG Knowledge System
+
+An intelligent, multi-modal chatbot that can analyze video content, answer your questions, and remember past interactions using a sophisticated Retrieval-Augmented Generation (RAG) system.
+
+![Demo Video](https://place-hold.it/800x450/667eea/ffffff?text=App+Screenshot+Here&fontsize=40)
+*(Replace the placeholder with a GIF or screenshot of your application)*
+
+---
+
+## ✨ Features
+
+-   **Intelligent Video Analysis**: Upload a video, and the assistant will use the Gemini 1.5 Flash model to understand its content.
+-   **Multi-Modal Chat**: Ask questions about the uploaded video, and receive detailed, context-aware answers.
+-   **Persistent Memory**:
+    -   **Short-Term Memory**: Uses **ChromaDB** to remember the conversation history within a single session.
+    -   **Long-Term Knowledge**: Uses a **FAISS Vector Store** to create a persistent, searchable knowledge base from all interactions (video analyses, Q&A), enabling cross-session insights.
+-   **RAG-Powered Context**: Follow-up questions are enhanced with relevant context retrieved from both the current conversation and the long-term knowledge base.
+-   **Interactive UI**: A user-friendly interface built with **Gradio**, featuring distinct sections for video interaction and knowledge base management.
+-   **Robust Backend**: Powered by **FastAPI**, providing a scalable and efficient API.
+-   **Debugging & Management**: The UI includes tools to directly query the knowledge base, add test data, and view system statistics.
+
+---
+
+## 🏗️ Architecture
+
+The application operates on a decoupled frontend-backend model. The Gradio UI serves as a pure client, making HTTP requests to the FastAPI backend, which houses all the AI logic, data processing, and state management.
+
+The core of the architecture is its **Dual-Memory System**:
+1.  **ChromaDB for Conversational Context**: Provides fast, session-specific memory. It answers the question, "What have we been talking about *right now*?".
+2.  **FAISS for Enduring Knowledge**: Creates a permanent, long-term knowledge base from key insights. It answers the question, "What has the assistant learned from *all past interactions*?".
+
+### System Flow Diagram
+
+This diagram illustrates how a user request flows through the system, interacting with the dual-memory stores and the Gemini AI model.
+
+
+
 ## ⚙️ Setup and Installation
 
 Follow these steps to get the application running on your local machine.
