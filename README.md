@@ -33,7 +33,7 @@ The core of the architecture is its **Dual-Memory System**:
 
 This diagram illustrates how a user request flows through the system, interacting with the dual-memory stores and the Gemini AI model.
 
-
+![System Flow Diagram](https://raw.githubusercontent.com/HEMANT2027/Vuen_Code_Hackathon/fe52de20f0e4cbd6f90ce446018ed9631a1d6f90/Model_Architecture.png)
 
 ## ⚙️ Setup and Installation
 
