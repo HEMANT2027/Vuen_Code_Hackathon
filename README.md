@@ -2,6 +2,9 @@
 
 Demo video Link - https://drive.google.com/file/d/1QwlFF5Com0b-mJgCtZXBGJwivSEBBcYI/view?usp=sharing
 
+<video src="https://github.com/user-attachments/assets/7cd7533a-d6ac-4d7e-a95a-dc86861e94ce" controls width="600"></video>
+
+
 
 An intelligent, multi-modal chatbot that can analyze video content, answer your questions, and remember past interactions using a sophisticated Retrieval-Augmented Generation (RAG) system.
 
