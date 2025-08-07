@@ -1,14 +1,14 @@
 ---
-title: vuenHackathon
-app_file: app.py
-sdk: gradio
-sdk_version: 5.41.0
+
 ---
 # 🎥 AI Video Chat Assistant with RAG Knowledge System
 
 An intelligent, multi-modal chatbot that can analyze video content, answer your questions, and remember past interactions using a sophisticated Retrieval-Augmented Generation (RAG) system.
 
-![Demo Video](https://place-hold.it/800x450/667eea/ffffff?text=App+Screenshot+Here&fontsize=40)
+[Watch the Demo Video](https://github.com/user-attachments/assets/04a9e3bf-0d28-455f-8ef7-1bfb2d3a0cd6)
+
+https://github.com/user-attachments/assets/04a9e3bf-0d28-455f-8ef7-1bfb2d3a0cd6
+
 
 ---
 
