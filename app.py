@@ -1,7 +1,7 @@
 # ---------------------------------------------
 # AI Video Chat Assistant with RAG Integration
 # ---------------------------------------------
-
+from dotenv import load_dotenv
 # ========== 0. ENVIRONMENT AND CONFIG ==========
 load_dotenv()  # Load environment variables from .env file
 
