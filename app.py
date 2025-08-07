@@ -609,11 +609,11 @@ def launch_gradio_ui():
         )
         
         demo.queue().launch(
-            server_name="127.0.0.1", 
-            server_port=7860,
+            server_name="0.0.0.0", 
+            server_port=8000,
             show_error=True,
-            inbrowser=True,
-            share=True
+            # inbrowser=True,
+            # share=True
         )
 
 # --- 4. Main Execution Block ---
