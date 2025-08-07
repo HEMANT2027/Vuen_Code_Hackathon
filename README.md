@@ -7,8 +7,6 @@ An intelligent, multi-modal chatbot that can analyze video content, answer your 
 
 [Watch the Demo Video](https://github.com/user-attachments/assets/04a9e3bf-0d28-455f-8ef7-1bfb2d3a0cd6)
 
-https://github.com/user-attachments/assets/04a9e3bf-0d28-455f-8ef7-1bfb2d3a0cd6
-
 
 ---
 
