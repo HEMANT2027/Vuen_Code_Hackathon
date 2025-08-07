@@ -141,3 +141,16 @@ sentence-transformers
 scikit-learn
 transformers
 python-dotenv
+# Core Application Dependencies
+fastapi
+uvicorn[standard]
+python-dotenv
+google-generativeai
+opencv-python
+chromadb
+gradio
+
+# Optional Dependencies for RAG Integration
+langchain-community
+sentence-transformers
+faiss-cpu
