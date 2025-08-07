@@ -1,3 +1,9 @@
+---
+title: vuenHackathon
+app_file: app.py
+sdk: gradio
+sdk_version: 5.41.0
+---
 # 🎥 AI Video Chat Assistant with RAG Knowledge System
 
 Demo video Link - https://drive.google.com/file/d/1QwlFF5Com0b-mJgCtZXBGJwivSEBBcYI/view?usp=sharing
